@@ -1,0 +1,14 @@
+namespace Sort {
+
+    function insertion<T: compare>(l: List<T>) {
+        var r: List<T> = List::init(l.size())
+        for var i = 0; i < l.size(); i += 1 {
+            var j = r.size()
+            for ; j > 0 and l[i].compare(r[j]) > 0; j -= 1
+                continue
+            r.add(l[i], j)
+        }
+        return r
+    }
+
+}
