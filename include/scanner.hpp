@@ -34,22 +34,25 @@ namespace Scanner
     {
         TokenType type;
         std::string string;
-        std::size_t line;
+        std::size_t line {};
+        std::size_t column {};
     };
 
-    inline const std::array regexesAndTypes {
-        std::pair<std::regex, TokenType> {"^\\/\\/.*", TokenType::COMMENT},
-        std::pair<std::regex, TokenType> {"^u8'[^']*'|^'[^']*'", TokenType::LITERAL},
-        std::pair<std::regex, TokenType> {"^[_a-zA-Z]+[\\d_a-zA-Z]*", TokenType::WORD},
-        std::pair<std::regex, TokenType> {"^0x[\\da-fA-F]+|^0o[0-7]+|^0b[10]+|^\\d+\\.\\d+|^\\d+", TokenType::NUMBER},
-        std::pair<std::regex, TokenType> {"^\\[[_\\w]*[_\\w\\d]+ ?\\.\\. ?[_\\w]*[_\\w\\d]*=?\\]|^\\[ ?\\.\\. ?[_\\w]*[_\\w\\d]+=?\\]", TokenType::UNARY_OPERATOR},
-        std::pair<std::regex, TokenType> {"^[\\(\\{\\[]", TokenType::BLOCK_START},
-        std::pair<std::regex, TokenType> {"^[\\)\\}\\]]", TokenType::BLOCK_END},
-        std::pair<std::regex, TokenType> {"^[\n,;]|^ +", TokenType::SEPARATOR},
-        std::pair<std::regex, TokenType> {"^[=!><+-\\/*%&|^]?=|^<<=|^>>=|^::|^->|^[:\\/*%&|^\\.]|^>>|^<<", TokenType::BINARY_OPERATOR},
-        std::pair<std::regex, TokenType> {"^~", TokenType::UNARY_OPERATOR},
-        std::pair<std::regex, TokenType> {"^[+-]", TokenType::AMBIGUOUS_OPERATOR},
-        std::pair<std::regex, TokenType> {"^<|^>", TokenType::SEMANTIC_DEPENDANT}
+    using Rule = std::pair<std::regex, TokenType>;
+
+    inline const std::array rules {
+        Rule{"^\\/\\/.*\n|^\\/\\*[\\s\\S]*\\*\\/", TokenType::COMMENT},
+        Rule{"^u8'([^']|\\\')*'|^'[^']*'", TokenType::LITERAL},
+        Rule{"^[_a-zA-Z]+[\\d_a-zA-Z]*", TokenType::WORD},
+        Rule{"^0x[\\da-fA-F]+|^0o[0-7]+|^0b[10]+|^\\d+\\.\\d+|^\\d+", TokenType::NUMBER},
+        Rule{"^\\[[_\\w]*[_\\w\\d]+ ?\\.\\. ?[_\\w]*[_\\w\\d]*=?\\]|^\\[ ?\\.\\. ?[_\\w]*[_\\w\\d]+=?\\]", TokenType::UNARY_OPERATOR},
+        Rule{"^[\\(\\{\\[]", TokenType::BLOCK_START},
+        Rule{"^[\\)\\}\\]]", TokenType::BLOCK_END},
+        Rule{"^[\n,;]|^ +", TokenType::SEPARATOR},
+        Rule{"^[=!><+-\\/*%&|^]?=|^<<=|^>>=|^::|^->|^[:\\/*%&|^\\.]|^>>|^<<", TokenType::BINARY_OPERATOR},
+        Rule{"^~", TokenType::UNARY_OPERATOR},
+        Rule{"^[+-]", TokenType::AMBIGUOUS_OPERATOR},
+        Rule{"^<|^>", TokenType::SEMANTIC_DEPENDANT}
     };
 
     namespace Words {
@@ -130,10 +133,9 @@ namespace Scanner
         };
     }
 
-    std::vector<Token> tokenizeLine(
-        std::string_view lineToBeScanned,
-        std::size_t lineNumber
-    ) noexcept;
+    std::vector<Token> tokenize(std::string& code) noexcept;
 }
 
 std::ostream& operator<<(std::ostream& os, const Scanner::Token& token);
+
+std::ostream& operator<<(std::ostream& os, const Scanner::TokenType& token);

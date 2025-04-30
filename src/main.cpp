@@ -6,7 +6,7 @@
 #include <vector>
 #include <scanner.hpp>
 #include <filesystem>
-#include <algorithm>
+#include <sstream>
 
 namespace fs = std::filesystem;
 
@@ -144,21 +144,13 @@ int main(int argc, char** argv)
 {
     parseCommandLine(argc,argv);
     std::size_t lineNumber {0};
-    for(std::string line; std::getline(Global::file, line) ; lineNumber += 1)
-    {
-        std::vector<Scanner::Token> lineTokens {Scanner::tokenizeLine(line, lineNumber)};
-        if(std::any_of(lineTokens.begin(), lineTokens.end(), [](Scanner::Token t){return t.type == Scanner::TokenType::INVALID;}))
-        {
-            std::cout << "Invalid token found in line " << lineNumber << std::endl;
-            finish();
-            return EXIT_FAILURE;
-        }
-        Global::tokens.insert(Global::tokens.end(), lineTokens.begin(), lineTokens.end());
-        Global::tokens.push_back({Scanner::TokenType::SEPARATOR,"\n",lineNumber,});
-    }
+    std::stringstream buffer;
+    buffer << Global::file.rdbuf();
+    std::string code {buffer.str()};
+    Global::tokens = Scanner::tokenize(code);
     if(Global::outputTokens)
         for(const auto& token : Global::tokens)
-            Global::tokenOutputFile << token;
+            Global::tokenOutputFile << token << '\n';
     finish();
     std::cout << "Compilation success" << std::endl;
     return EXIT_SUCCESS;
