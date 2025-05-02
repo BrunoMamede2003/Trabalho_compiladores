@@ -15,7 +15,7 @@ namespace Global
     fs::path filePath {};
     std::vector<fs::path> includePaths {};
     std::ifstream file {};
-    std::vector<Scanner::Token> tokens;
+    std::vector<scanner::Token> tokens;
     bool outputTokens {false};
     std::filesystem::path tokenOutputPath;
     std::ofstream tokenOutputFile;
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
     std::stringstream buffer;
     buffer << Global::file.rdbuf();
     std::string code {buffer.str()};
-    Global::tokens = Scanner::tokenize(code);
+    Global::tokens = scanner::tokenize(code);
     if(Global::outputTokens)
         for(const auto& token : Global::tokens)
             Global::tokenOutputFile << token << '\n';
